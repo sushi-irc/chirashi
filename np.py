@@ -79,6 +79,26 @@ class np (sushi.Plugin):
 			pass
 
 		try:
+			import dbus
+
+			bus = dbus.SessionBus(mainloop=dbus.mainloop.glib.DBusGMainLoop())
+			proxy = bus.get_object("org.bansheeproject.Banshee", "/org/bansheeproject/Banshee/PlayerEngine")
+			banshee = dbus.Interface(proxy, "org.bansheeproject.Banshee.PlayerEngine")
+
+			curTrack = banshee.GetCurrentTrack()
+			artist = unicode(curTrack["artist"])
+			title = unicode(curTrack["name"])
+
+			nowPlaying = "np: %(artist)s - %(title)s" % { "artist": artist, "title": title }
+
+			self.get_bus().message(server, target, nowPlaying)
+
+			return
+
+		except Exception as e:
+			print e
+
+		try:
 			import os
 			from xdg.BaseDirectory import xdg_config_home
 
