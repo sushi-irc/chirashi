@@ -41,9 +41,15 @@ class np (sushi.Plugin):
 
 		self.add_command("np", self.np_command)
 
-		self.mpd_host = "localhost"
-		self.mpd_port = 6600
-		self.mpd_password = ""
+		self.mpd_host = self.get_config("mpd_host") or "localhost"
+		self.mpd_port = self.get_config("mpd_port") or 6600
+
+		try:
+			self.mpd_port = int(self.mpd_port)
+		except ValueError:
+			self.mpd_port = 6600
+
+		self.mpd_password = self.get_config("mpd_password") or ""
 
 	def unload(self):
 		self.remove_command("np")
