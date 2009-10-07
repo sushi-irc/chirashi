@@ -26,19 +26,20 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 """
 
+from gettext import gettext as _
 import sushi
 
 plugin_info = (
-	"Writes the current playing song to the channel after typing /np",
+	_("Writes the current playing song to the channel after typing /np"),
 	"1.0",
 	"Marian Tietz"
 )
 
 plugin_options = (
-	("mpd_host", "MPD host: ", sushi.TYPE_STRING, "localhost"),
-	("mpd_port", "MPD port: ", sushi.TYPE_NUMBER, 6600),
-	("mpd_password", "MPD password: ", sushi.TYPE_PASSWORD, ""),
-	("player", "Player: ", sushi.TYPE_CHOICE,
+	("mpd_host", _("MPD host"), sushi.TYPE_STRING, "localhost"),
+	("mpd_port", _("MPD port"), sushi.TYPE_NUMBER, 6600),
+	("mpd_password", _("MPD password"), sushi.TYPE_PASSWORD, ""),
+	("player", _("Player"), sushi.TYPE_CHOICE,
 		(("MPD","mpd"),
 		("Banshee","banshee"),
 		("Decibel Audio Player", "decibel")))
@@ -56,8 +57,6 @@ class np (sushi.Plugin):
 
 	def np_command(self, server, target, args):
 		player = self.get_config("player")
-
-		print "player = %s" % player
 
 		if player == "mpd":
 			try:
