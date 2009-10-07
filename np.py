@@ -34,6 +34,16 @@ plugin_info = (
 	"Marian Tietz"
 )
 
+plugin_options = (
+	("mpd_host", "MPD host: ", sushi.TYPE_STRING, "localhost"),
+	("mpd_port", "MPD port: ", sushi.TYPE_NUMBER, 6600),
+	("mpd_password", "MPD password: ", sushi.TYPE_PASSWORD, ""),
+	("player", "Player: ", sushi.TYPE_CHOICE,
+		(("MPD","mpd"),
+		("Banshee","banshee"),
+		("Decibel Audio Player", "decibel")))
+)
+
 class np (sushi.Plugin):
 
 	def __init__(self):
@@ -41,85 +51,87 @@ class np (sushi.Plugin):
 
 		self.add_command("np", self.np_command)
 
-		self.mpd_host = self.get_config("mpd_host") or "localhost"
-		self.mpd_port = self.get_config("mpd_port") or 6600
-
-		try:
-			self.mpd_port = int(self.mpd_port)
-		except ValueError:
-			self.mpd_port = 6600
-
-		self.mpd_password = self.get_config("mpd_password") or ""
-
 	def unload(self):
 		self.remove_command("np")
 
 	def np_command(self, server, target, args):
-		try:
-			import mpd
+		player = self.get_config("player")
 
-			client = mpd.MPDClient()
+		print "player = %s" % player
 
-			if not self.mpd_host:
-				self.mpd_host = "localhost"
+		if player == "mpd":
+			try:
+				import mpd
 
-			client.connect(self.mpd_host, self.mpd_port)
+				client = mpd.MPDClient()
 
-			if self.mpd_password:
-				client.password(self.mpd_password)
+				mpd_host = self.get_config("mpd_host") or "localhost"
+				mpd_port = self.get_config("mpd_port") or 6600
+				mpd_port = int(mpd_port)
+				mpd_password = self.get_config("mpd_password") or ""
 
-			data = {"artist":"N/A","title":"N/A","album":"N/A"}
-			data.update(client.currentsong())
+				client.connect(mpd_host, mpd_port)
 
-			fstring = "np: %(artist)s - %(title)s" % data
+				if mpd_password:
+					client.password(mpd_password)
 
-			self.get_bus().message(
-				server,
-				target,
-				fstring)
+				data = {"artist":"N/A","title":"N/A","album":"N/A"}
+				data.update(client.currentsong())
 
-			client.disconnect()
+				fstring = "np: %(artist)s - %(title)s" % data
 
-			return
-		except:
-			pass
+				self.get_bus().message(
+					server,
+					target,
+					fstring)
 
-		try:
-			import dbus
+				client.disconnect()
 
-			bus = dbus.SessionBus(mainloop=dbus.mainloop.glib.DBusGMainLoop())
-			proxy = bus.get_object("org.bansheeproject.Banshee", "/org/bansheeproject/Banshee/PlayerEngine")
-			banshee = dbus.Interface(proxy, "org.bansheeproject.Banshee.PlayerEngine")
+			except BaseException as e:
+				self.display_error(str(e))
 
-			curTrack = banshee.GetCurrentTrack()
-			artist = unicode(curTrack["artist"])
-			title = unicode(curTrack["name"])
+		elif player == "banshee":
+			try:
+				import dbus
 
-			nowPlaying = "np: %(artist)s - %(title)s" % { "artist": artist, "title": title }
+				bus = dbus.SessionBus(
+					mainloop = dbus.mainloop.glib.DBusGMainLoop())
 
-			self.get_bus().message(server, target, nowPlaying)
+				proxy = bus.get_object("org.bansheeproject.Banshee",
+					"/org/bansheeproject/Banshee/PlayerEngine")
+				banshee = dbus.Interface(proxy,
+					"org.bansheeproject.Banshee.PlayerEngine")
 
-			return
+				curTrack = banshee.GetCurrentTrack()
+				artist = unicode(curTrack["artist"])
+				title = unicode(curTrack["name"])
 
-		except Exception as e:
-			print e
+				nowPlaying = "np: %(artist)s - %(title)s" % {
+					"artist": artist, "title": title }
 
-		try:
-			import os
-			from xdg.BaseDirectory import xdg_config_home
+				self.get_bus().message(server, target, nowPlaying)
 
-			f = open(os.path.join(
-				xdg_config_home,
-				"decibel-audio-player",
-				"now-playing.txt"))
-			s = f.read().replace("\n", " ")
-			f.close()
+			except Exception as e:
+				self.display_error(str(e))
 
-			self.get_bus().message(
-				server,
-				target,
-				"np: %s" % (s))
+		elif player == "decibel":
 
-			return
-		except:
-			pass
+			try:
+				import os
+				from xdg.BaseDirectory import xdg_config_home
+
+				f = open(os.path.join(
+					xdg_config_home,
+					"decibel-audio-player",
+					"now-playing.txt"))
+				s = f.read().replace("\n", " ")
+				f.close()
+
+				self.get_bus().message(
+					server,
+					target,
+					"np: %s" % (s))
+
+			except BaseException as e:
+				self.display_error(str(e))
+
