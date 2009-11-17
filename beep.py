@@ -50,7 +50,7 @@ class beep (sushi.Plugin):
 
 	def message_cb(time, server, usr, target, text):
 
-		def has_highlight_a(text, needle):
+		def has_highlight(text, needle):
 			punctuation = string.punctuation + " \n\t"
 			ln = len(needle)
 			for line in text.split("\n"):
