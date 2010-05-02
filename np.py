@@ -134,3 +134,6 @@ class np (sushi.Plugin):
 			except BaseException as e:
 				self.display_error(str(e))
 
+		else:
+			self.display_error("No player configured.")
+
