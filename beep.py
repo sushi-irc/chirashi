@@ -48,7 +48,7 @@ class beep (sushi.Plugin):
 		self.get_bus().connect_to_signal("message",
 			self.message_cb)
 
-	def message_cb(time, server, usr, target, text):
+	def message_cb(self, time, server, usr, target, text):
 
 		def has_highlight(text, needle):
 			punctuation = string.punctuation + " \n\t"
