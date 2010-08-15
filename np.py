@@ -147,8 +147,12 @@ class np (sushi.Plugin):
 			if proxy.Status() == "playing":
 				pos = proxy.Position() # in Playlist
 
-				mdata["artist"] = proxy.SongTuple(pos, "artist")
-				mdata["title"] = proxy.SongTuple(pos, "title")
+				artist = proxy.SongTuple(pos, "artist")
+				if artist:
+					mdata["artist"] = artist
+				title = proxy.SongTuple(pos, "title")
+				if title:
+					mdata["title"] = title
 
 			data = {"artist":"N/A","title":"N/A"}
 			data.update(mdata)
