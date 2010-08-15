@@ -42,7 +42,8 @@ plugin_options = (
 	("player", _("Player"), sushi.TYPE_CHOICE,
 		(("MPD","mpd"),
 		("Banshee","banshee"),
-		("Decibel Audio Player", "decibel")))
+		("Decibel Audio Player", "decibel"),
+		("Audacious", "audacious")))
 )
 
 class np (sushi.Plugin):
@@ -133,6 +134,29 @@ class np (sushi.Plugin):
 
 			except BaseException as e:
 				self.display_error(str(e))
+
+		elif player == "audacious":
+			import dbus
+
+			bus = dbus.SessionBus(
+				mainloop=dbus.mainloop.glib.DBusGMainLoop())
+			proxy = bus.get_object("org.atheme.audacious",
+				"/org/atheme/audacious")
+
+			mdata = {}
+			if proxy.Status() == "playing":
+				pos = proxy.Position() # in Playlist
+
+				mdata["artist"] = proxy.SongTuple(pos, "artist")
+				mdata["title"] = proxy.SongTuple(pos, "title")
+
+			data = {"artist":"N/A","title":"N/A"}
+			data.update(mdata)
+
+			fstring = "np: %(artist)s — %(title)s" % (data)
+
+			self.get_bus().message(
+				server, target, fstring)
 
 		else:
 			self.display_error("No player configured.")
