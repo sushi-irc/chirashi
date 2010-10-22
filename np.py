@@ -78,7 +78,7 @@ class np (sushi.Plugin):
 				data = {"artist":"N/A","title":"N/A","album":"N/A"}
 				data.update(client.currentsong())
 
-				fstring = "np: %(artist)s — %(title)s" % data
+				fstring = "np: %(artist)s – %(title)s" % data
 
 				self.get_bus().message(
 					server,
@@ -106,7 +106,7 @@ class np (sushi.Plugin):
 				artist = unicode(curTrack["artist"])
 				title = unicode(curTrack["name"])
 
-				nowPlaying = "np: %(artist)s — %(title)s" % {
+				nowPlaying = "np: %(artist)s – %(title)s" % {
 					"artist": artist, "title": title }
 
 				self.get_bus().message(server, target, nowPlaying)
@@ -157,7 +157,7 @@ class np (sushi.Plugin):
 			data = {"artist":"N/A","title":"N/A"}
 			data.update(mdata)
 
-			fstring = "np: %(artist)s — %(title)s" % (data)
+			fstring = "np: %(artist)s – %(title)s" % (data)
 
 			self.get_bus().message(
 				server, target, fstring)
