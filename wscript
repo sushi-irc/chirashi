@@ -3,11 +3,11 @@
 APPNAME = 'plugins'
 VERSION = '1.4.0'
 
-srcdir = '.'
-blddir = 'build'
+top = '.'
+out = 'build'
 
-def configure (conf):
-	conf.check_tool('gnu_dirs')
+def configure (ctx):
+	ctx.load('gnu_dirs')
 
-def build (bld):
-	bld.install_files('${DATAROOTDIR}/sushi/plugins', bld.glob('*.py'))
+def build (ctx):
+	ctx.install_files('${DATAROOTDIR}/sushi/plugins', ctx.path.ant_glob('*.py'))
