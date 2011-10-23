@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-APPNAME = 'plugins'
+APPNAME = 'chirashi'
 VERSION = '1.4.0'
 
 top = '.'
@@ -10,4 +10,4 @@ def configure (ctx):
 	ctx.load('gnu_dirs')
 
 def build (ctx):
-	ctx.install_files('${DATAROOTDIR}/sushi/plugins', ctx.path.ant_glob('*.py'))
+	ctx.install_files('${DATAROOTDIR}/chirashi', ctx.path.ant_glob('*.py'))
